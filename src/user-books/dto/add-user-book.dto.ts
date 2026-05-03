@@ -1,12 +1,31 @@
 import { UserBookStatus } from "../types/user-book.type";
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from "class-validator";
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from "class-validator";
 
 export class AddUserBookDto {
   @IsString()
   userId: string;
 
   @IsString()
-  bookId: string;
+  externalId: string;
+
+  @IsString()
+  title: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  authors: string[];
+
+  @IsOptional()
+  @IsString()
+  cover?: string;
 
   @IsEnum(UserBookStatus)
   status: UserBookStatus;

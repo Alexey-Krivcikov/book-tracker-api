@@ -8,9 +8,36 @@ datasource db {
 
 model UserBook {
   id        String   @id @default(uuid())
+
   userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
   bookId    String
+  book      Book @relation(fields: [bookId], references: [id])
+
   status    String
   rating    Int?
   createdAt DateTime @default(now())
+
+  @@unique([userId, bookId])
+}
+
+model Book {
+  id         String   @id @default(uuid())
+  externalId String   @unique
+  title      String
+  authors    String[]
+  cover      String?
+  createdAt  DateTime @default(now())
+
+  userBooks  UserBook[]
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+
+  userBooks UserBook[]
 }
