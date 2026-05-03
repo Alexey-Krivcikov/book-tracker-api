@@ -11,9 +11,6 @@ import {
 
 export class AddUserBookDto {
   @IsString()
-  userId: string;
-
-  @IsString()
   externalId: string;
 
   @IsString()

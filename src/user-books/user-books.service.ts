@@ -18,8 +18,8 @@ export class UserBooksService {
     });
   }
 
-  async add(data: AddUserBookDto) {
-    const { externalId, title, authors, cover, status, rating, userId } = data;
+  async add(userId: string, dto: AddUserBookDto) {
+    const { externalId, title, authors, cover, status, rating } = dto;
 
     return this.prisma.$transaction(async (tx) => {
       let book = await tx.book.findUnique({
