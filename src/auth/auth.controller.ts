@@ -7,11 +7,14 @@ import {
   HttpCode,
   Req,
   UnauthorizedException,
+  UseGuards,
+  Get,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 import type { Response, Request } from "express";
+import { JwtAuthGuard } from "./jwt-auth.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -65,5 +68,14 @@ export class AuthController {
       message: "Token refreshed successfully",
       expiresIn: 3600,
     });
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("me")
+  async getMe(@Req() req: any) {
+    return {
+      id: req.user.id,
+      email: req.user.email,
+    };
   }
 }
