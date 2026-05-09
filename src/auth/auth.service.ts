@@ -21,27 +21,25 @@ export class AuthService {
     return null;
   }
 
-  async login(user: { id: string; email: string }, res: Response) {
-    const payload = { email: user.email, sub: user.id };
-    const access_token = this.jwtService.sign(payload, { expiresIn: "60m" });
-    const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d" });
+  async login(user: { id: string; email: string }) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+    };
 
-    res.cookie("access_token", access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000,
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: "60m",
     });
 
-    res.cookie("refresh_token", refresh_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: "/auth/refresh",
+    const refreshToken = this.jwtService.sign(payload, {
+      expiresIn: "7d",
     });
 
-    return res.json({ message: "Logged in successfully" });
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
   }
 
   async register(dto: RegisterDto) {
@@ -55,17 +53,22 @@ export class AuthService {
     });
   }
 
-  async refreshToken(refreshToken: string) {
-    try {
-      const payload = this.jwtService.verify(refreshToken);
-      const newAccessToken = this.jwtService.sign(
-        { email: payload.email, sub: payload.sub },
-        { expiresIn: "60m" },
-      );
-      return { access_token: newAccessToken };
-    } catch {
-      throw new Error("Invalid refresh token");
-    }
+  async refresh(refreshToken: string) {
+    const payload = this.jwtService.verify(refreshToken);
+
+    const accessToken = this.jwtService.sign(
+      {
+        sub: payload.sub,
+        email: payload.email,
+      },
+      {
+        expiresIn: "60m",
+      },
+    );
+
+    return {
+      accessToken,
+    };
   }
 
   async logout(res: Response) {

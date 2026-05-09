@@ -5,34 +5,26 @@ import {
   HttpStatus,
   Res,
   HttpCode,
-  Req,
   UnauthorizedException,
-  UseGuards,
-  Get,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
-import type { Response, Request } from "express";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import type { Response } from "express";
+import { RefreshDto } from "./dto/refresh.dto";
 
 @Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post("login")
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    const user = await this.authService.validateUser(
-      loginDto.email,
-      loginDto.password,
-    );
-
+  async login(@Body() dto: LoginDto) {
+    const user = await this.authService.validateUser(dto.email, dto.password);
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      throw new UnauthorizedException();
     }
 
-    return this.authService.login(user, res);
+    return this.authService.login(user);
   }
 
   @Post("register")
@@ -47,35 +39,7 @@ export class AuthController {
   }
 
   @Post("refresh")
-  @HttpCode(HttpStatus.OK)
-  async refresh(@Req() req: Request, @Res() res: Response) {
-    const refreshToken = req.cookies?.refresh_token;
-
-    if (!refreshToken) {
-      throw new UnauthorizedException("No refresh token provided");
-    }
-
-    const tokens = await this.authService.refreshToken(refreshToken);
-
-    res.cookie("access_token", tokens.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000,
-    });
-
-    return res.json({
-      message: "Token refreshed successfully",
-      expiresIn: 3600,
-    });
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get("me")
-  async getMe(@Req() req: any) {
-    return {
-      id: req.user.id,
-      email: req.user.email,
-    };
+  refresh(@Body() dto: RefreshDto) {
+    return this.authService.refresh(dto.refreshToken);
   }
 }
