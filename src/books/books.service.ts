@@ -8,11 +8,9 @@ export class BooksService {
 
   async search(query: string) {
     try {
-      // TODO: использовать гугл апи как фолбэк, сначала искать книги в бд
-      const url = `https://www.googleapis.com/books/v1/volumes?maxResults=10&langRestrict=ru&q=${encodeURIComponent(query)}`;
-
+      // TODO: использовать гугл апи как фолбэк, сначала искать книги в бд + вынести ключ
+      const url = `https://www.googleapis.com/books/v1/volumes?maxResults=10&langRestrict=ru&q=${encodeURIComponent(query)}&key=AIzaSyANpGowrTgu2N5mKGW0ZbrqOR8ptmabar8`;
       const response = await firstValueFrom(this.httpService.get(url));
-
       return this.mapBooks(response.data.items || []);
     } catch (e) {
       throw new BadGatewayException("Google Books API error");
