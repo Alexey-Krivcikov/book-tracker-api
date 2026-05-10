@@ -9,9 +9,6 @@ export class UserBooksService {
   findAll(userId: string) {
     return this.prisma.userBook.findMany({
       where: { userId },
-      include: {
-        book: true,
-      },
       orderBy: {
         createdAt: "desc",
       },
@@ -19,48 +16,26 @@ export class UserBooksService {
   }
 
   async add(userId: string, dto: AddUserBookDto) {
-    const { externalId, title, authors, cover, status, rating } = dto;
+    const { title } = dto;
 
-    return this.prisma.$transaction(async (tx) => {
-      let book = await tx.book.findUnique({
-        where: { externalId },
-      });
-
-      if (!book) {
-        book = await tx.book.create({
-          data: {
-            externalId,
-            title,
-            authors,
-            cover,
-          },
-        });
-      }
-
-      const existing = await tx.userBook.findUnique({
-        where: {
-          userId_bookId: {
-            userId,
-            bookId: book.id,
-          },
-        },
-      });
-
-      if (existing) {
-        throw new BadRequestException("Book already added");
-      }
-
-      return tx.userBook.create({
-        data: {
+    const existing = await this.prisma.userBook.findUnique({
+      where: {
+        userId_title: {
           userId,
-          bookId: book.id,
-          status,
-          rating,
+          title,
         },
-        include: {
-          book: true,
-        },
-      });
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException("Книга уже добавлена");
+    }
+
+    return this.prisma.userBook.create({
+      data: {
+        userId,
+        ...dto,
+      },
     });
   }
 }

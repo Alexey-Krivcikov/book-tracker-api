@@ -11,9 +11,6 @@ import {
 
 export class AddUserBookDto {
   @IsString()
-  externalId: string;
-
-  @IsString()
   title: string;
 
   @IsArray()
@@ -32,4 +29,8 @@ export class AddUserBookDto {
   @Min(1)
   @Max(10)
   rating?: number;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

@@ -7,31 +7,20 @@ datasource db {
 }
 
 model UserBook {
-  id        String   @id @default(uuid())
-
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-
-  bookId    String
-  book      Book @relation(fields: [bookId], references: [id])
-
-  status    String
-  rating    Int?
-  createdAt DateTime @default(now())
-
-  @@unique([userId, bookId])
-}
-
-model Book {
   id          String   @id @default(uuid())
-  externalId  String   @unique
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
   title       String
   description String?
   authors     String[]
   cover       String?
+  status      String
+  rating      Int?
   createdAt   DateTime @default(now())
 
-  userBooks   UserBook[]
+  @@unique([userId, title])
 }
 
 model User {
