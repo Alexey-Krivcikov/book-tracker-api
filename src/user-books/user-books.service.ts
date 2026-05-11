@@ -1,6 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { AddUserBookDto } from "./dto/add-user-book.dto";
 import { PrismaService } from "../prisma/prisma.service";
+import { UpdateUserBookDto } from "./dto/update-user-book.dto";
 
 @Injectable()
 export class UserBooksService {
@@ -35,6 +40,33 @@ export class UserBooksService {
       data: {
         userId,
         ...dto,
+      },
+    });
+  }
+
+  async update(id: string, userId: string, dto: UpdateUserBookDto) {
+    const book = await this.prisma.userBook.findFirst({
+      where: {
+        id,
+        userId,
+      },
+    });
+
+    if (!book) {
+      throw new NotFoundException("Книга не найдена");
+    }
+
+    return this.prisma.userBook.update({
+      where: { id },
+      data: dto,
+    });
+  }
+
+  async remove(userId: string, id: string) {
+    return this.prisma.userBook.deleteMany({
+      where: {
+        id,
+        userId,
       },
     });
   }
