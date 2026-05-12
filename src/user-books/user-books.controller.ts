@@ -43,8 +43,6 @@ export class UserBooksController {
   @Delete(":id")
   remove(@Param("id") id: string, @Request() req) {
     const userId = req.user.userId;
-    console.log(userId, "userId");
-    console.log(id, "id");
     return this.userBooksService.remove(userId, id);
   }
 }
