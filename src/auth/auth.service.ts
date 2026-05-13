@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
 import * as bcrypt from "bcrypt";
@@ -7,6 +7,7 @@ import { Response } from "express";
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
@@ -43,14 +44,31 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
+    this.logger.log(`Register attempt: ${dto.email}`);
+
     const { email, password } = dto;
+
+    const existing = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existing) {
+      this.logger.warn(`Register failed - user exists: ${email}`);
+      throw new Error("User already exists");
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    return this.prisma.user.create({
+
+    const user = await this.prisma.user.create({
       data: {
         email,
         password: hashedPassword,
       },
     });
+
+    this.logger.log(`User created: ${user.email} (${user.id})`);
+
+    return user;
   }
 
   async refresh(refreshToken: string) {
