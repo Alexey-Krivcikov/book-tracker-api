@@ -19,7 +19,7 @@ async function bootstrap() {
     origin: process.env.UI_URL ?? "http://localhost:3000",
     credentials: true,
   });
-  
-  await app.listen(process.env.PORT ?? 3001);
+
+  await app.listen(process.env.PORT || 3001, "0.0.0.0");
 }
 bootstrap();
