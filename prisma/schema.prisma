@@ -9,6 +9,7 @@ datasource db {
 model UserBook {
   id          String   @id @default(uuid())
 
+  externalId  String?
   userId      String
   user        User     @relation(fields: [userId], references: [id])
 
@@ -20,7 +21,7 @@ model UserBook {
   rating      Int?
   createdAt   DateTime @default(now())
 
-  @@unique([userId, title])
+  @@unique([userId, externalId])
 }
 
 model User {

@@ -13,6 +13,10 @@ export class AddUserBookDto {
   @IsString()
   title: string;
 
+  @IsOptional()
+  @IsString()
+  externalId?: string;
+
   @IsArray()
   @IsString({ each: true })
   authors: string[];
