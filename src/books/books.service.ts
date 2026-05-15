@@ -17,8 +17,10 @@ export class BooksService {
     this.logger.log(`Searching books for user: ${userId}, query: "${query}"`);
 
     try {
-      // TODO: вынести ключ
-      const url = `https://www.googleapis.com/books/v1/volumes?maxResults=10&langRestrict=ru&q=${encodeURIComponent(query)}&key=AIzaSyANpGowrTgu2N5mKGW0ZbrqOR8ptmabar8`;
+      const key = process.env.GOOGLE_API_KEY
+        ? `&key=${process.env.GOOGLE_API_KEY}`
+        : "";
+      const url = `https://www.googleapis.com/books/v1/volumes?maxResults=10&langRestrict=ru&q=${encodeURIComponent(query)}${key}`;
 
       this.logger.debug(`Google Books API URL: ${url}`);
 
