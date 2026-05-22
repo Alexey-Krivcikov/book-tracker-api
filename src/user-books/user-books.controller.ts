@@ -6,13 +6,13 @@ import {
   Param,
   Patch,
   Post,
-  Request,
   UseGuards,
 } from "@nestjs/common";
 import { UserBooksService } from "./user-books.service";
 import { AddUserBookDto } from "./dto/add-user-book.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { UpdateUserBookDto } from "./dto/update-user-book.dto";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
 
 @Controller("user-books")
 @UseGuards(JwtAuthGuard)
@@ -20,14 +20,12 @@ export class UserBooksController {
   constructor(private readonly userBooksService: UserBooksService) {}
 
   @Get()
-  findAll(@Request() req) {
-    const userId = req.user.userId;
+  findAll(@CurrentUser("userId") userId: string) {
     return this.userBooksService.findAll(userId);
   }
 
   @Post()
-  add(@Body() dto: AddUserBookDto, @Request() req) {
-    const userId = req.user.userId;
+  add(@Body() dto: AddUserBookDto, @CurrentUser("userId") userId: string) {
     return this.userBooksService.add(userId, dto);
   }
 
@@ -35,14 +33,13 @@ export class UserBooksController {
   update(
     @Param("id") id: string,
     @Body() dto: UpdateUserBookDto,
-    @Request() req,
+    @CurrentUser("userId") userId: string,
   ) {
-    return this.userBooksService.update(id, req.user.userId, dto);
+    return this.userBooksService.update(id, userId, dto);
   }
 
   @Delete(":id")
-  remove(@Param("id") id: string, @Request() req) {
-    const userId = req.user.userId;
+  remove(@Param("id") id: string, @CurrentUser("userId") userId: string) {
     return this.userBooksService.remove(userId, id);
   }
 }
