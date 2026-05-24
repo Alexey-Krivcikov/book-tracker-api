@@ -21,6 +21,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { UserBookResponseDto } from "./dto/user-book-response.dto";
 
 @ApiTags("user-books")
 @ApiBearerAuth("access-token")
@@ -35,6 +36,8 @@ export class UserBooksController {
   })
   @ApiResponse({
     status: 200,
+    type: UserBookResponseDto,
+    isArray: true,
     description: "Books successfully loaded",
   })
   findAll(@CurrentUser("userId") userId: string) {

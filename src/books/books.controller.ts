@@ -10,6 +10,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { BookSearchResponseDto } from "./dto/search.dto";
 
 @ApiTags("books")
 @ApiBearerAuth("access-token")
@@ -30,6 +31,7 @@ export class BooksController {
     description: "Search query",
   })
   @ApiResponse({
+    type: BookSearchResponseDto,
     status: 200,
     description: "List of books returned successfully",
   })

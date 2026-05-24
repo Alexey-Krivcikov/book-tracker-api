@@ -2,6 +2,8 @@ import { BadGatewayException, Injectable, Logger } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 import { PrismaService } from "../prisma/prisma.service";
+import { BookSearchResponseDto } from "./dto/search.dto";
+import { GoogleBook, GoogleBooksResponse } from "./types/google-book.type";
 
 @Injectable()
 export class BooksService {
@@ -24,7 +26,9 @@ export class BooksService {
 
       this.logger.debug(`Google Books API URL: ${url}`);
 
-      const response = await firstValueFrom(this.httpService.get(url));
+      const response = await firstValueFrom(
+        this.httpService.get<GoogleBooksResponse>(url),
+      );
 
       const totalItems = response.data.totalItems || 0;
       this.logger.log(
@@ -72,7 +76,10 @@ export class BooksService {
     }
   }
 
-  private mapBooks(items: any[], userBookIds: Set<string>) {
+  private mapBooks(
+    items: GoogleBook[],
+    userBookIds: Set<string>,
+  ): BookSearchResponseDto[] {
     this.logger.debug(`Mapping ${items.length} books from Google API`);
 
     const mappedBooks = items.map((item) => {
@@ -82,9 +89,9 @@ export class BooksService {
         externalId: item.id,
         title: volume.title,
         authors: volume.authors || [],
-        description: volume.description || null,
-        cover: volume.imageLinks?.thumbnail || null,
-        publishedDate: volume.publishedDate || null,
+        description: volume.description,
+        cover: volume.imageLinks?.thumbnail,
+        publishedDate: volume.publishedDate,
         isAdded: userBookIds.has(item.id),
       };
 

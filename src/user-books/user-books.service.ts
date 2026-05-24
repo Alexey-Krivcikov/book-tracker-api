@@ -7,6 +7,7 @@ import {
 import { AddUserBookDto } from "./dto/add-user-book.dto";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpdateUserBookDto } from "./dto/update-user-book.dto";
+import { UserBook } from "@prisma/client";
 
 @Injectable()
 export class UserBooksService {
@@ -14,7 +15,7 @@ export class UserBooksService {
 
   constructor(private prisma: PrismaService) {}
 
-  findAll(userId: string) {
+  findAll(userId: string): Promise<UserBook[]> {
     this.logger.log(`Finding all books for user: ${userId}`);
 
     return this.prisma.userBook.findMany({
@@ -25,7 +26,7 @@ export class UserBooksService {
     });
   }
 
-  async add(userId: string, dto: AddUserBookDto) {
+  async add(userId: string, dto: AddUserBookDto): Promise<UserBook> {
     this.logger.log(`Adding book for user: ${userId}`);
     this.logger.debug(`Book data: ${JSON.stringify(dto)}`);
 
@@ -77,7 +78,11 @@ export class UserBooksService {
     return book;
   }
 
-  async update(id: string, userId: string, dto: UpdateUserBookDto) {
+  async update(
+    id: string,
+    userId: string,
+    dto: UpdateUserBookDto,
+  ): Promise<UserBook> {
     this.logger.log(`Updating book ${id} for user: ${userId}`);
     this.logger.debug(`Update data: ${JSON.stringify(dto)}`);
 
@@ -109,7 +114,7 @@ export class UserBooksService {
     return updatedBook;
   }
 
-  async remove(userId: string, id: string) {
+  async remove(userId: string, id: string): Promise<{ count: number }> {
     this.logger.log(`Removing book ${id} for user: ${userId}`);
 
     const result = await this.prisma.userBook.deleteMany({
